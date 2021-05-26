@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,17 +15,22 @@ import kodlamaio.hrms.entities.concretes.JobPosition;
 @RequestMapping("/api/jobPositions")
 public class JobPositionsController {
 	
-	private JobPositionService jobPositionService;
+	private JobPositionService jobPositionManager;
 	
 	@Autowired
-	public JobPositionsController(JobPositionService jobPositionService) {
+	public JobPositionsController(JobPositionService jobPositionManager) {
 		super();
-		this.jobPositionService = jobPositionService;
+		this.jobPositionManager = jobPositionManager;
+	}
+	
+	@PostMapping("/add")
+	public void add(JobPosition jobPosition) {
+		jobPositionManager.add(jobPosition);
 	}
 	
 	@GetMapping("/getAll")
 	public List<JobPosition> getAll(){
-		return jobPositionService.getAll();
+		return jobPositionManager.getAll();
 	}
 
 }
