@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.CandidateService;
 import kodlamaio.hrms.business.abstracts.CandidateValidationService;
-import kodlamaio.hrms.core.utilities.email.EmailValidation;
+import kodlamaio.hrms.core.utilities.validation.EmailValidation;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateDao;
 import kodlamaio.hrms.entities.concretes.Candidate;
 

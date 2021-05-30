@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -17,27 +18,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="job_positions")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name="cities")
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler","jobAdvertisements"})
 
-public class JobPosition {
+public class City {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="city_id")
 	private int id;
 	
-	@Column(name="job_title")
-	private String jobTitle;
+	@Column(name="city_name")
+	private String name;
 	
-//	@OneToMany(mappedBy="jobPosition")
-//	private List<JobAdvertisement> jobAdvertisements;
 	
-
 	
+	@OneToMany(mappedBy="city")
+	//@JoinColumn(name="city_id")
+	private List<JobAdvertisement> jobAdvertisements;
 	
 
 }

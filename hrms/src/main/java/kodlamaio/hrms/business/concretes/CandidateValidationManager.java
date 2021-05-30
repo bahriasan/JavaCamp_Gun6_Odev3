@@ -1,6 +1,6 @@
 package kodlamaio.hrms.business.concretes;
 
-import java.rmi.RemoteException;
+
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
@@ -9,36 +9,41 @@ import kodlamaio.hrms.business.abstracts.CandidateValidationService;
 import kodlamaio.hrms.core.utilities.result.ErrorResult;
 import kodlamaio.hrms.core.utilities.result.Result;
 import kodlamaio.hrms.core.utilities.result.SuccessResult;
+import kodlamaio.hrms.core.utilities.validation.MernisValidation;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateDao;
 import kodlamaio.hrms.dataAccess.abstracts.UserDao;
 import kodlamaio.hrms.entities.concretes.Candidate;
 import kodlamaio.hrms.entities.concretes.User;
-import tr.gov.nvi.tckimlik.WS.KPSPublicSoapProxy;
 
 @Service
 public class CandidateValidationManager implements CandidateValidationService{
 	
 	private UserDao userDao;
 	private CandidateDao candidateDao;
+	private MernisValidation mernisValidation;
 	
-	public CandidateValidationManager(UserDao userDao, CandidateDao candidateDao) {
+	public CandidateValidationManager(UserDao userDao, CandidateDao candidateDao, MernisValidation mernisValidation) {
 		this.userDao=userDao;
 		this.candidateDao=candidateDao;
+		this.mernisValidation=mernisValidation;
 	}
 	
 	@Override
 	public void validate(Candidate candidate) throws Exception{
 		
 	Result[] results = new Result[] {isFirstNameNull(candidate.getFirstName()),isLastNameNull(candidate.getLastName()),
-						isNationalityIsNull(candidate.getNationalityId()), isBirthDateNull(candidate.getYearOfBirth()),
+						isNationalityIsNull(candidate.getNationalityId()), isBirthDateNull(candidate.getBirthYear()),
 						isEmailValid(candidate.getEmail()), isPasswordNull(candidate.getPassword()),
-						isMernisValidated(candidate), isEmailDuplicated(candidate.getEmail()), isNationalityIdDuplicated(candidate.getNationalityId())};
+						isEmailDuplicated(candidate.getEmail()), isNationalityIdDuplicated(candidate.getNationalityId())
+						
+						};
+	//,mernisValidation.validate(candidate) eklenecek
+	
 	for(Result result:results) {
 		if(!result.isSuccess()) {
 			throw new Exception(result.getMessage());
 		}
 	}
-	
 	
 	}
 	
@@ -57,7 +62,7 @@ public class CandidateValidationManager implements CandidateValidationService{
 		}return new SuccessResult();
 	}
 	
-	//NAtionality Id Null
+	//Nationality Id Null
 	private Result isNationalityIsNull(String nationalityId) {
 		if (nationalityId.equals(null) || nationalityId.isEmpty()) {
 			return new ErrorResult("NationalityIdNullError");
@@ -65,9 +70,9 @@ public class CandidateValidationManager implements CandidateValidationService{
 	}
 	
 	//Birth Year Null
-	private Result isBirthDateNull(int yearOfBirth) {
+	private Result isBirthDateNull(int date) {
 		//Buraya bir daha bak
-		if(yearOfBirth==0) {
+		if(date==0) {
 			return new ErrorResult("YearOfBirthNotValid");
 		}return new SuccessResult();
 	}
@@ -87,23 +92,7 @@ public class CandidateValidationManager implements CandidateValidationService{
 		}return  new SuccessResult();
 	}
 	
-	//Password repeat will be added
-	
-
-	//Mernis Validation
-	private Result isMernisValidated(Candidate candidate) throws RemoteException {
-		KPSPublicSoapProxy kpsPublic = new KPSPublicSoapProxy();
-		boolean result = kpsPublic.TCKimlikNoDogrula(
-				Long.parseLong(candidate.getNationalityId()), 
-				candidate.getFirstName().toUpperCase(), 
-				candidate.getLastName().toLowerCase(),
-				candidate.getYearOfBirth());
-		if(!result) {
-			return new ErrorResult("MernisValidationError");
-		} return new SuccessResult();
-	}	
-	
-	
+	//Password repeat will be added	
 	
 	//Email Duplication
 	private Result isEmailDuplicated(String email) {
@@ -115,7 +104,7 @@ public class CandidateValidationManager implements CandidateValidationService{
 	}
 	
 	
-	//NationalityDuplication
+	//NationalityIdDuplication
 	private Result isNationalityIdDuplicated(String nationalityId) {
 		for(Candidate candidate:candidateDao.findAll()) {
 			if(candidate.getNationalityId().equals(nationalityId)) {
